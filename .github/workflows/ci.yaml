@@ -1,0 +1,62 @@
+on:
+  push:
+    branches:
+      - master
+env:
+  REGISTRY_NAME: ${{ acc.REGISTRY_NAME }}
+  ARC_RESOURCE_GROUP: ${{ acc.ARC_RESOURCE_GROUP }}
+  ARC_CLUSTER: ${{ acc.ARC_CLUSTER }}
+  IMAGE_SECRET: ${{ acc.IMAGE_SECRET }}
+  NAMESPACE: ${{ acc.NAMESPACE }}
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }} 
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - run: |
+        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/demo-app:${{ github.sha }}
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/demo-app:${{ github.sha }}   
+        
+  deploy-to-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master    
+      
+    - uses: azure/k8s-set-context@cluster-connect
+      with:
+        cluster-type: 'arc'
+        creds: ${{ secrets.AZURE_CREDS }}
+        cluster-name: ${{ env.ARC_CLUSTER }}
+        resource-group: ${{ env.ARC_RESOURCE_GROUP }}
+        token: ${{ secrets.SA_TOKEN }}
+    
+    - run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+        
+    - uses: azure/k8s-create-secret@v1
+      with:
+        container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: ${{ env.IMAGE_SECRET }}
+        namespace: ${{ env.NAMESPACE }}
+    
+    - uses: azure/k8s-deploy@v1.4
+      with:
+        manifests: |
+          manifests/*.yaml
+        images: |
+          ${{ env.REGISTRY_NAME }}.azurecr.io/demo-app:${{ github.sha }}
+        imagepullsecrets: |
+          ${{ env.IMAGE_SECRET }}
+        namespace: ${{ env.NAMESPACE }}
+                          

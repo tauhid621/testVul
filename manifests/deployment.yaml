@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  annotations:
+    fluxcd.io/automated: "true"
+    fluxcd.io/tag.demo-app: semver:~1.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+      - name: demo-app
+        image: demoarcacr.azurecr.io/demo-app:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080

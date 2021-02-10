@@ -1,0 +1,26 @@
+﻿extends layout
+
+block content
+  .main-container
+    .cloud-image
+        img(src='/images/successCloudNew.svg')
+    .content  
+        .content-body
+            .success-text
+                p Hey there!
+            .description 
+                p Hope you are enjoying the demo :)
+
+  .row
+    .col-md-6
+      h2 Get started with Azure Kubernetes Service on Azure Stack HCI
+      p Azure Kubernetes Service on Azure Stack HCI is for customers who want to run AKS style workloads on-premise.
+      p Refer to our docs to know more about Azure Kubernetes Service on Azure Stack HCI.
+      p 
+        a.btn.btn-default(href='https://aka.ms/AKSonHCI-Download') Learn more &raquo;
+    .col-md-6
+      h2 Azure Arc enabled Kubernetes
+      p Azure Arc enabled Kubernetes lets you manage Kubernetes clusters on customer environments.
+      p Extend capabilities like Cluster Configuration (GitOps), Azure Monitor and Azure Policy to Azure Kubernetes Service on Azure Stack HCI using Azure Arc.
+      p 
+        a.btn.btn-default(href='https://aka.ms/AzureArcK8sDocs') Learn more &raquo;

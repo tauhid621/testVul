@@ -1,0 +1,69 @@
+{
+    "name": "Node js k8s accelerator",
+    "version": "1.0.0",
+    "description": "An accelerator for node js application which deploys to kubernetes",
+    "Tags": [
+        "Node",
+        "K8s"
+    ],
+    "inputs": {
+        "secrets": [
+            {
+                "name": "REGISTRY_USERNAME",
+                "label": "Username for the docker registry"
+            },
+            {
+                "name": "REGISTRY_PASSWORD",
+                "label": "Password for the docker registry"
+            },
+            {
+                "name": "AZURE_CREDS",
+                "label": "Azure Credentials"
+            },
+            {
+                "name": "SA_TOKEN",
+                "label": "SA Token"
+            }
+        ],
+        "placeHolders": [
+            {
+                "File": ".github/workflows/ci.yaml",
+                "Variables": [
+                    {
+                        "name": "REGISTRY_NAME",
+                        "label": "Docker registry name"
+                    },
+                    {
+                        "name": "ARC_RESOURCE_GROUP",
+                        "label": "ARC Resource group"
+                    },
+                    {
+                        "name": "ARC_CLUSTER",
+                        "label": "ARC cluster"
+                    },
+                    {
+                        "name": "IMAGE_SECRET",
+                        "label": "Image Secret"
+                    },
+                    {
+                        "name": "NAMESPACE",
+                        "label": "Namespace"
+                    }
+                ]
+            }
+        ]
+    },
+    "settings": [
+        {
+            "name": "vulnerability_alerts",
+            "value": "enabled"
+        }
+    ],
+    "startupWorkflows": [
+        {
+            "path": ".github/workflows/provisionResources.yml",
+            "name": "provisionResources.yml",
+            "ref": "main"
+        }
+    ]
+}
